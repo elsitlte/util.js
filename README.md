@@ -2,12 +2,11 @@ util.js
 前端开发中常用的工具函数
 聚焦于抹平兼容性，对一些高频常见操作封装为函数，方便调用。
 
-#Usage 
+# Usage 
   <script src="util.min.ja"></script>
 
-#overview
+# overview
 
-|:------|:------|
 |part | function|
 |:------|:------|
 |part I |isDOMelement(element)|
