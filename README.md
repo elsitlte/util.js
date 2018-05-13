@@ -3,7 +3,7 @@ util.js
 聚焦于抹平兼容性，对一些高频常见操作封装为函数，方便调用。
 
 # Usage 
-  <script src="util.min.ja"></script>
+  <script src="util.min.js"></script>
 
 # overview
 

@@ -1,8 +1,9 @@
+
 /*cross browsers compatibility utility */
 /*part I DOM operaction*/
 ////// 1.0 judge if a elment is a DOM element
 //Chrome,Opera中HTMLElement的类型为function
-function isDOMelement(element) {
+window.isDOMelement=function(element) {
 	if(typeof HTMLElement==="object"||typeof HTMLElement==="function") {
     return element instanceof HTMLElement;
 	}
@@ -12,7 +13,7 @@ function isDOMelement(element) {
 }
 ////// 1.1 get DOM element by className
 //Chrome,Opera中HTMLElement的类型为function
-function getClass(className,element){
+window.getClass=function(className,element){
 	if(arguments[1]!==undefined) {
 		if(!isDOMelement(element)){
 			console.log("error in getClass(className,element) :arguments[1] must be a Element type!");
@@ -41,7 +42,7 @@ function getClass(className,element){
 	}
 }
 ////// 1.2 add className to element
-function addClass(element, newClassName) {
+window.addClass=function(element, newClassName) {
 	if(!isDOMelement(element)){
 	  console.log("error in addClass(element, newClassName) :arguments[0] must be a HTMLElement type!");
     return;
@@ -59,7 +60,7 @@ function addClass(element, newClassName) {
 }
 
 ////// 1.3  remove oldClassName from element
-function removeClass(element, oldClassName) {
+window.removeClass=function(element, oldClassName) {
 	if(!isDOMelement(element)){
 	  console.log("error in removeClass(element,oldClassName) :arguments[0] must be a Element type!");
     return;
@@ -80,7 +81,7 @@ function removeClass(element, oldClassName) {
   }
 }
 ////// 1.4 if element has className?
-function hasClass(element, className) {
+window.hasClass=function(element, className) {
 	if(!isDOMelement(element)){
 	  console.log("error in hasClass(element, className) :arguments[0] must be a Element type!");
     return;
@@ -101,7 +102,7 @@ function hasClass(element, className) {
   }
 }
 ////// 1.5 remove element
-function remove(element) {
+window.remove=function(element) {
 	if(!isDOMelement(element)){
 	  console.log("error in remove(element) :arguments[0] must be a Element type!");
     return;
@@ -109,7 +110,7 @@ function remove(element) {
 	element.parentNode.removeChild(element);
 }
 ////// 1.6 empty childNodes of a element
-function empty(element) {
+window.empty=function(element) {
 	if(!isDOMelement(element)){
 	  console.log("error in empty(element) :arguments[0] must be a Element type!");
     return;
@@ -118,7 +119,7 @@ function empty(element) {
 }
 
 ////// 1.6 if siblingNode is sibling of element
-function isSiblingNode(element, siblingNode) {
+window.isSiblingNode=function(element, siblingNode) {
 	if(!isDOMelement(element)){
 	  console.log("error in isSiblingNode(element, siblingNode):arguments[0] must be a Element type!");
     return;
@@ -126,7 +127,7 @@ function isSiblingNode(element, siblingNode) {
    return siblingNode.parentNode.contains(element);
 }
 ////// 1.7 getPosition
-function getPosition(element) {
+window.getPosition=function(element) {
 	if(!isDOMelement(element)){
 	  console.log("error in getPosition(element) :arguments[0] must be a Element type!");
     return;
@@ -134,7 +135,7 @@ function getPosition(element) {
   return { left: element.offsetLeft, top: element.offsetTop }
 }
 ////// 1.8 getOffset
-function getOffset (element) {
+window.getOffset=function(element) {
 	if(!isDOMelement(element)){
 	  console.log("error in getOffset (element) :arguments[0] must be a Element type!");
     return;
@@ -146,23 +147,51 @@ function getOffset (element) {
   }
 }
 ////// 1.9 getStyle
-function getStyle (element,cssStyle) {
+window.getStyle=function(element,cssStyle) {
 	if(!isDOMelement(element)){
 	  console.log("error in getStyle (element,cssStyle) :arguments[0] must be a Element type!");
     return;
   }		
 	if(window.getComputedStyle) {
 		var win=element.ownerDocument.defaultView;
-		return win.getComputedStyle(el, null)[cssStyle];		
+		return win.getComputedStyle(element, null)[cssStyle];		
 	}
 	else {
     return element.currentStyle[cssStyle];		
 	}
 }
-
+////// 1.10 show
+window.show=function(element,displayType) {
+  if(!isDOMelement(element)){
+    console.log("error in getStyle (element,cssStyle) :arguments[0] must be a Element type!");
+    return;
+  }
+     
+  if(displayType) {
+    if(typeof displayType!=="string"){
+      console.log("error in show (element,displayType) :arguments[1] must be a string!");
+      return;
+    }    
+    element.style.display= displayType; 
+  }
+  else {
+    element.style.display= "block";   
+  }
+}
+////// 1.10 hide
+window.hide=function(element) {
+  if(!isDOMelement(element)){
+    console.log("error in getStyle (element,cssStyle) :arguments[0] must be a Element type!");
+    return;
+  }   
+  element.style.display= "none"; 
+}
 /*part II cross browsers event*/
-function addEvent(element,eventType,listener){
+window.addEvent=function(element,eventType,listener){
 	if(!isDOMelement(element)){
+    console.log(element);
+    console.log(eventType);
+    console.log(listener);
 	  console.log("error in addEvent(element,eventType,listener) :arguments[0] must be a Element type!");
     return;
   }		
@@ -170,13 +199,23 @@ function addEvent(element,eventType,listener){
 	  element.addEventListener(eventType,listener,false);
 	}
 	else if(window.attachEvent) {
-	  element.attachEvent("on"+eventType,listener);
+	  element.attachEvent("on"+eventType,function(){
+      e=window.event;
+      e.target=event.srcElement;
+      e.preventDefault=function(e){
+        e.returnValue = false;
+      }
+      e.stopPropagation=function(event){
+        e.cancelBubble = true;
+      }
+      listener(e);
+    });
 	}
 	else {
 	  element["on"+eventType]=listener;
 	}
 }
-function removeEvent(element,eventType,listener){
+window.removeEvent=function(element,eventType,listener){
 	if(!isDOMelement(element)){
 	  console.log("error in removeEvent(element,eventType,listener) :arguments[0] must be a Element type!");
     return;
@@ -191,16 +230,23 @@ function removeEvent(element,eventType,listener){
 		 element["on"+eventType]=null;
 	}
 }
-function trigger(element ,eventType,dataObj) {
+window.trigger=function(element ,eventType,dataObj,bubbles) {
 	if(!isDOMelement(element)){
 	  console.log("error in trigger(element ,eventType,dataObj) :arguments[0] must be a Element type!");
     return;
-  }	
+  }
+  ///默认冒泡	
+  if(bubbles==undefined){
+    var _bubbles=true;
+  }
+  else {
+    _bubbles=bubbles;
+  }
 	if (window.CustomEvent) {
-	  var event=new CustomEvent('custom-event', {detail: dataObj});
+	  var event=new CustomEvent(eventType, {detail: dataObj,bubbles:_bubbles});
 	} else {
 	  var event=document.createEvent('CustomEvent');
-	  event.initCustomEvent('custom-event', true, true, dataObj);
+	  event.initCustomEvent(eventType, _bubbles, true, dataObj);
 	}
 	element.dispatchEvent(event);
 }
@@ -208,7 +254,7 @@ function trigger(element ,eventType,dataObj) {
 
 /*part III ecma5 shim*/
 if (typeof Array.prototype.forEach!=="function") {
-	Array.prototype.forEach=function (callback,thisArg){
+	Array.prototype.forEach=function(callback,thisArg){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -234,7 +280,7 @@ if (typeof Array.prototype.forEach!=="function") {
 }
 
 if (typeof Array.prototype.map!=="function") {
-	Array.prototype.map=function (callback,thisArg){
+	Array.prototype.map=function(callback,thisArg){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -260,7 +306,7 @@ if (typeof Array.prototype.map!=="function") {
 }
 
 if (typeof Array.prototype.every!=="function") {
-	Array.prototype.every=function (callback,thisArg){
+	Array.prototype.every=function(callback,thisArg){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -287,7 +333,7 @@ if (typeof Array.prototype.every!=="function") {
 }
 
 if (typeof Array.prototype.some!=="function") {
-	Array.prototype.some=function (callback,thisArg){
+	Array.prototype.some=function(callback,thisArg){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -314,7 +360,7 @@ if (typeof Array.prototype.some!=="function") {
 }
 
 if (typeof Array.prototype.filter!=="function") {
-	Array.prototype.filter=function (callback,thisArg){
+	Array.prototype.filter=function(callback,thisArg){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -341,7 +387,7 @@ if (typeof Array.prototype.filter!=="function") {
 }
 
 if (typeof Array.prototype.reduce!=="function") {
-	Array.prototype.reduce=function (callback,initialValue){
+	Array.prototype.reduce=function(callback,initialValue){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -374,7 +420,7 @@ if (typeof Array.prototype.reduce!=="function") {
 }
 
 if (typeof Array.prototype.reduceRight!=="function") {
-	Array.prototype.reduceRight=function (callback,initialValue){
+	Array.prototype.reduceRight=function(callback,initialValue){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -407,7 +453,7 @@ if (typeof Array.prototype.reduceRight!=="function") {
 }
 
 if (typeof Array.prototype.indexOf!=="function") {
-	Array.prototype.indexOf=function (searchElement,fromIndex){
+	Array.prototype.indexOf=function(searchElement,fromIndex){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -434,7 +480,7 @@ if (typeof Array.prototype.indexOf!=="function") {
 }
 
 if (typeof Array.prototype.lastIndexOf!=="function") {
-	Array.prototype.lastIndexOf=function (searchElement,fromIndex){
+	Array.prototype.lastIndexOf=function(searchElement,fromIndex){
 		if (this == null) {
       throw new TypeError(' this is null or not defined');
     }
@@ -463,7 +509,7 @@ if (typeof Array.prototype.lastIndexOf!=="function") {
 }
 
 if (!String.prototype.trim) {
-  String.prototype.trim=function () {
+  String.prototype.trim=function() {
     return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
   };
 }
@@ -509,7 +555,7 @@ if (!Object.keys) {
   }());
 }
 /*part IV ajax cookie location*/
-function createXHR() {
+window.createXHR=function() {
 	if(window.XMLHttpRequest){
     return new XMLHttpRequest();
   }else{
@@ -526,28 +572,37 @@ function createXHR() {
 //             name: 'simon',
 //             password: '123456'
 //      },
-//      onsuccess: function (responseText, xhr) {
+//      onsuccess: window.(responseText, xhr) {
 //        console.log(responseText);
 //      }
 //   }
 // );
-function ajax(url, options) {
+window.ajax=function(url, options) {
   var xhr=createXHR();
   xhr.onreadystatechange=function() {
-  	if(xhr.readstatechange===4) {
-  		if(xhr.state>=200&&xhr.state<300||xhr.state===304) {
-  			options.success(xhr.responseText);
+  	if(xhr.readyState===4) {
+  		if(xhr.status>=200&&xhr.status<300||xhr.status===304) {
+  			options.success(xhr);
   		}
   		else {
   			options.error(xhr.responseText);
   		}
   	}
   }
-  xhr.open(options.method,url,true);
-  xhr.send(options.date);
+  if(options==null||options.method===undefined||options.method==="GET"){
+    xhr.open("GET",url);
+    xhr.send(null);
+  }
+  else {
+    if(typeof options.method==="string"){   
+      xhr.open(options.method,url);
+      xhr.send(options.date);
+    }    
+  }
 }
+
 // 获取cookie值
-function getCookie(name) {
+window.getCookie=function(name) {
   var cookieName=encodeURIComponent(name)+"=",
 	cookieStart=document.cookie.indexOf(cookieName),
 	cookieValue=null;
@@ -563,7 +618,7 @@ function getCookie(name) {
 }
 
 // setcookie
-function setCookie(name, value, expires, path, domain, secure) {
+window.setCookie=function(name, value, expires, path, domain, secure) {
   var cookieText=encodeURIComponent(name)+"="+encodeURIComponent(value);
 	if(expires instanceof Date) {
 	  cookieText += "; expires=" + expires.toGMTString();
@@ -580,11 +635,11 @@ function setCookie(name, value, expires, path, domain, secure) {
 	document.cookie=cookieText;
 }
 // unsetcookie
-function unSetCookie(name) {
+window.unSetCookie=function(name) {
   setCookie(name, "", new Date(0));
 }
 // getQueryStringArgs of location.search
-function getQueryStringArgs(){
+window.getQueryStringArgs=function(){
   var qs=(location.search.length > 0 ? location.search.substring(1) : "");
   var args={},
   items=qs.length ? qs.split("&") : [],
@@ -602,7 +657,7 @@ function getQueryStringArgs(){
   return args;
 }
 
-/*part V util function */
+/*part V util window.*/
 /////5.1 detect type
 /////5.1.1 isArray
 if (!Array.isArray) {
@@ -611,7 +666,7 @@ if (!Array.isArray) {
   };
 }
 /////5.1.2 isFunction
-function isFunction(item) {
+window.isFunction=function(item) {
   if (typeof item === 'function') {
     return true;
   }
@@ -619,23 +674,23 @@ function isFunction(item) {
   return type === '[object Function]' || type === '[object GeneratorFunction]';
 }
 /////5.1.3 isNAN
-function isNAN (x) {
+window.isNAN=function(x) {
 	return x!==x;
 }
 /////5.1.4 isNumeric
-function isNumeric(n) {
+window.isNumeric=function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 /////5.1.5 isWindow
-function isWindow(obj) {
+window.isWindow=function(obj) {
   return obj !== null && obj !== undefined && obj === obj.window;
 }
-/////5.1.6 isWindow
-function isEmptyObject(obj) {
+/////5.1.6 isEmptyObject
+window.isEmptyObject=function(obj) {
   return Object.keys(obj).length === 0;
 }
 /////5.1.7 isPlainObject(create by {} or newObject())
-function isPlainObject(obj) {
+window.isPlainObject=function(obj) {
   if (typeof (obj) !== 'object' || obj.nodeType || obj !== null && obj !== undefined && obj === obj.window) {
     return false;
   }
@@ -647,9 +702,9 @@ function isPlainObject(obj) {
 }
 /////5.2 object operation
 /////5.2.1 
-function uniqArray(arr) {
+window.uniqArray=function(arr) {
   if(!arr instanceof Array) {
-  	console.log("function uniqArray need a array input!")
+  	console.log("window.uniqArray need a array input!")
   	return;
   }
   var result=[]
@@ -662,7 +717,7 @@ function uniqArray(arr) {
 }
 
 /////5.2.2
-function flatArray(arr) {
+window.flatArray=function(arr) {
   var newArr =[];
   for(var i= 0; i < arr.length; i++){
       if(arr[i] instanceof Array){
@@ -676,7 +731,7 @@ function flatArray(arr) {
 }
 
 /////5.2.3
-function getObjectLength(obj) {
+window.getObjectLength=function(obj) {
 	var len=0;
 	for(var i in obj) {
 		if(obj.hasOwnproperty(i)) len++;
@@ -684,7 +739,7 @@ function getObjectLength(obj) {
 	return len;
 }
 /////判断字符串是否为空，若为空则返回true否则返回false  
-function isEmpty(source){  
+window.isEmpty=function(source){  
     var str=source.replace(/(^\s*)|(\s*$)/g,"");  
     if(str=="" || str.toLowerCase()=="null" || str.length<=0){  
         return true;  
@@ -694,7 +749,7 @@ function isEmpty(source){
 }  
 /////5.3 confirm
 /////5.3.1 验证身份证号是否正确 
-function isCardNo(num){  
+window.isCardNo=function(num){  
     if(isNaN(num)){  
         alert("输入的身份证号不是数字！");  
         return false;  
@@ -714,21 +769,21 @@ function isCardNo(num){
     return res;  
 } 
 /////5.3.2 验证是否为电话号码（座机）   
-function isTelephone(source) {  
+window.isTelephone=function(source) {  
     var regex=/^(0[0-9]{2,3}\-)?([2-9][0-9]{6,7})+(\-[0-9]{1,4})?$/  
     return regex.test(source);  //search(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/) != -1  
 }  
   
 /////5.3.3 验证是否为手机号码（移动手机） 
 
-function isMobilePhone(source) {  
+window.isMobilePhone=function(source) {  
     var regex=/^((\d3\d3)|(\d{3}\-))?1\d{10}/;  
     return regex.test(source);  
 }  
   
 /////5.3.1 验证是否为电子邮箱 
 
-function isEmail(source) {  
+window.isEmail=function(source) {  
     var regex=/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;  
     if(source.search(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/) != -1){  
         return true;  
@@ -739,7 +794,9 @@ function isEmail(source) {
 } 
 
 /////5.3.4 验证身份证号是否正确 验证字符串是否是中文 
-function isChines(source){  
+window.isChines=function(source){  
     var regex=/^[\u4E00-\u9FA5]+$/;  
     return regex.test(source);  
 }  
+
+console.log("hello!!!!")
